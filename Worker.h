@@ -2,6 +2,8 @@
 #define WORKER_H
 
 #include <iostream>
+#include <cstring>
+#include <cstdlib>
 using namespace std;
 
 class Worker{
@@ -24,6 +26,9 @@ class Worker{
     const char* getFio() const;
     const char* getPost() const;
     const int getYear() const;
+
+    friend ostream& operator<<(ostream& os, const Worker& worker);
+    friend istream& operator>>(istream& is, Worker& worker);
 };
 
 #endif
