@@ -2,6 +2,7 @@
 #define WorkerControl_H
 
 #include "Worker.h"
+#include "WorkerException.h"
 
 class WorkerControl {
 private:

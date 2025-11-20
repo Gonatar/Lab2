@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
+#include "WorkerException.h"
 using namespace std;
 
 class Worker{

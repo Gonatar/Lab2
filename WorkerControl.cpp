@@ -6,6 +6,9 @@ using namespace std;
 
 WorkerControl::WorkerControl() : capacity(10), count(0) {
     workers = new Worker*[capacity];
+    if (!workers) {
+        throw WorkerException("Memory allocation failed for workers array");
+    }
 }
 
 WorkerControl::~WorkerControl() {
@@ -18,6 +21,10 @@ WorkerControl::~WorkerControl() {
 void WorkerControl::domExpansion() {
     capacity *= 2;
     Worker** newWorkers = new Worker*[capacity];
+    if (!newWorkers) {
+        throw WorkerException("Memory allocation failed during expansion");
+    }
+    
     for (int i = 0; i < count; i++) {
         newWorkers[i] = workers[i];
     }
@@ -26,18 +33,25 @@ void WorkerControl::domExpansion() {
 }
 
 void WorkerControl::addWorker() {
-    if (count >= capacity) domExpansion();
+    if (count >= capacity) {
+        domExpansion();
+    }
     
-    workers[count] = new Worker();
-    cin >> *workers[count];
-    count++;
-    cout << "Worker added. Total: " << count << endl;
+    try {
+        workers[count] = new Worker();
+        cin >> *workers[count];
+        count++;
+        cout << "Worker added. Total: " << count << endl;
+    } catch (const WorkerException& e) {
+        delete workers[count]; // Удаляем частично созданный объект
+        workers[count] = nullptr;
+        throw; // Пробрасываем исключение дальше
+    }
 }
 
 void WorkerControl::displayAll() {
     if (count == 0) {
-        cout << "No workers in database" << endl;
-        return;
+        throw WorkerException("No workers in database");
     }
     
     cout << "\n=== All Workers ===" << endl;
@@ -54,11 +68,21 @@ int compareWorkers(const void* a, const void* b) {
 }
 
 void WorkerControl::sortByFIO() {
+    if (count == 0) {
+        throw WorkerException("Cannot sort: no workers in database");
+    }
     qsort(workers, count, sizeof(Worker*), compareWorkers);
     cout << "Sorted by FIO" << endl;
 }
 
 void WorkerControl::findExperienced(int minYears) {
+    if (count == 0) {
+        throw WorkerException("No workers in database");
+    }
+    if (minYears < 0) {
+        throw WorkerException("Minimum years cannot be negative");
+    }
+    
     int currentYear = 2025;
     bool found = false;
     
@@ -78,8 +102,7 @@ void WorkerControl::findExperienced(int minYears) {
 
 void WorkerControl::deleteWorker(int index) {
     if (index < 0 || index >= count) {
-        cout << "Invalid index!" << endl;
-        return;
+        throw WorkerException("Invalid index for deletion");
     }
     
     delete workers[index];
@@ -87,6 +110,7 @@ void WorkerControl::deleteWorker(int index) {
         workers[i] = workers[i + 1];
     }
     count--;
+    workers[count] = nullptr; // Важное исправление!
     cout << "Worker deleted" << endl;
 }
 

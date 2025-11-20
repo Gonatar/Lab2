@@ -1,5 +1,4 @@
 #include "Menu.h"
-#include <iostream>
 #include <limits>
 
 using namespace std;
@@ -11,22 +10,30 @@ void Menu::run() {
         displayMainMenu();
         choice = getInput(0, 5);
         
-        switch(choice) {
-            case 1:
-                addWorker();
-                break;
-            case 2:
-                displayAllWorkers();
-                break;
-            case 3:
-                findExperiencedWorkers();
-                break;
-            case 4:
-                deleteWorker();
-                break;
-            case 0:
-                cout << "Exiting..." << endl;
-                break;
+        try {
+            switch(choice) {
+                case 1:
+                    addWorker();
+                    break;
+                case 2:
+                    displayAllWorkers();
+                    break;
+                case 3:
+                    findExperiencedWorkers();
+                    break;
+                case 4:
+                    deleteWorker();
+                    break;
+                case 0:
+                    cout << "Exiting..." << endl;
+                    break;
+            }
+        } catch (const WorkerException& e) {
+            cout << "\n❌ ERROR: " << e.what() << endl;
+        } catch (const exception& e) {
+            cout << "\n❌ UNEXPECTED ERROR: " << e.what() << endl;
+        } catch (...) {
+            cout << "\n❌ UNKNOWN ERROR occurred" << endl;
         }
         
         if (choice != 0) {
@@ -73,15 +80,21 @@ void Menu::findExperiencedWorkers() {
 
 void Menu::deleteWorker() {
     cout << "\n=== Delete Worker ===" << endl;
-    WorkerControl.displayAll();
     
     if (WorkerControl.getCount() == 0) {
+        cout << "No workers to delete." << endl;
         return;
     }
     
-    cout << "Enter worker number to delete (1-" << WorkerControl.getCount() << "): ";
-    int index = getInput(1, WorkerControl.getCount());
-    WorkerControl.deleteWorker(index - 1);
+    try {
+        WorkerControl.displayAll();
+        
+        cout << "Enter worker number to delete (1-" << WorkerControl.getCount() << "): ";
+        int index = getInput(1, WorkerControl.getCount());
+        WorkerControl.deleteWorker(index - 1);
+    } catch (const WorkerException& e) {
+        cout << "Cannot delete: " << e.what() << endl;
+    }
 }
 
 void Menu::enter() {

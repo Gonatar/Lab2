@@ -1,0 +1,16 @@
+*.o
+*.obj
+
+*.exe
+test_program
+*.out
+
+build/
+Debug/
+Release/
+
+.DS_Store
+Thumbs.db
+
+*.bak
+*.backup
