@@ -7,6 +7,7 @@ void Menu::run() {
     int choice;
     
     do {
+        system("cls");
         displayMainMenu();
         choice = getInput(0, 6);
         
@@ -35,11 +36,11 @@ void Menu::run() {
                     break;
             }
         } catch (const WorkerException& e) {
-            cout << "\n❌ ERROR: " << e.what() << endl;
+            cout << "\nERROR: " << e.what() << endl;
         } catch (const exception& e) {
-            cout << "\n❌ UNEXPECTED ERROR: " << e.what() << endl;
+            cout << "\nUNEXPECTED ERROR: " << e.what() << endl;
         } catch (...) {
-            cout << "\n❌ UNKNOWN ERROR occurred" << endl;
+            cout << "\nUNKNOWN ERROR occurred" << endl;
         }
         
         if (choice != 0) {
@@ -62,12 +63,14 @@ void Menu::displayMainMenu() {
 }
 
 void Menu::addWorker() {
+    system("cls");
     cout << "\n=== Add New Worker ===" << endl;
     WorkerControl.addWorker();
     WorkerControl.sortByFIO();
 }
 
 void Menu::editWorker() {
+    system("cls");
     cout << "\n=== Edit Worker ===" << endl;
     
     if (WorkerControl.getCount() == 0) {
@@ -97,11 +100,13 @@ void Menu::editWorker() {
 }
 
 void Menu::displayAllWorkers() {
+    system("cls");
     cout << "\n=== All Workers ===" << endl;
     WorkerControl.displayAll();
 }
 
 void Menu::findExperiencedWorkers() {
+    system("cls");
     cout << "\n=== Find Experienced Workers ===" << endl;
     int years;
     cout << "Enter minimum years of experience: ";
@@ -116,6 +121,7 @@ void Menu::findExperiencedWorkers() {
 }
 
 void Menu::deleteWorker() {
+    system("cls");
     cout << "\n=== Delete Worker ===" << endl;
     
     if (WorkerControl.getCount() == 0) {
@@ -135,6 +141,7 @@ void Menu::deleteWorker() {
 }
 
 void Menu::processFile() {
+    system("cls");
     cout << "\n=== Process Text File ===" << endl;
     cout << "This function reads 'text.txt' and displays only sentences without commas." << endl;
     

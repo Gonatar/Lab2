@@ -76,7 +76,6 @@ void WorkerControl::displayAll() {
         throw WorkerException("No workers in database");
     }
     
-    cout << "\n=== All Workers ===" << endl;
     for (int i = 0; i < count; i++) {
         cout << i + 1 << ". " << *workers[i] << endl;
     }
