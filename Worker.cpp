@@ -94,6 +94,19 @@ const int Worker::getYear() const {
     return year;
 }
 
+const char* Worker::getSurname() const {
+    if (!fio) return "No Name";
+
+    const char* space = strchr(fio, ' ');
+    if (space) {
+        static char surname[100];
+        strncpy(surname, fio, space - fio);
+        surname[space - fio] = '\0';
+        return surname;
+    }
+    return fio;
+}
+
 ostream& operator<<(ostream& os, const Worker& worker) {
     os << "FIO: " << worker.getFio() << ", Post: " << worker.getPost() 
        << ", Year: " << worker.getYear();

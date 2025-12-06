@@ -8,7 +8,7 @@ void Menu::run() {
     
     do {
         displayMainMenu();
-        choice = getInput(0, 5);
+        choice = getInput(0, 6);
         
         try {
             switch(choice) {
@@ -22,7 +22,13 @@ void Menu::run() {
                     findExperiencedWorkers();
                     break;
                 case 4:
+                    editWorker();
+                    break;
+                case 5:
                     deleteWorker();
+                    break;
+                case 6:
+                    processFile();
                     break;
                 case 0:
                     cout << "Exiting..." << endl;
@@ -43,12 +49,14 @@ void Menu::run() {
 }
 
 void Menu::displayMainMenu() {
-    cout << "\n=== WorkerControl Management ===" << endl;
+    cout << "\n=== Worker Management ===" << endl;
     cout << "Workers in database: " << WorkerControl.getCount() << endl;
     cout << "1. Add worker" << endl;
     cout << "2. Display all workers" << endl;
     cout << "3. Find experienced workers" << endl;
-    cout << "4. Delete worker" << endl;
+    cout << "4. Edit worker" << endl;
+    cout << "5. Delete worker" << endl;
+    cout << "6. Process text file (2nd task)" << endl;
     cout << "0. Exit" << endl;
     cout << "Choice: ";
 }
@@ -57,6 +65,35 @@ void Menu::addWorker() {
     cout << "\n=== Add New Worker ===" << endl;
     WorkerControl.addWorker();
     WorkerControl.sortByFIO();
+}
+
+void Menu::editWorker() {
+    cout << "\n=== Edit Worker ===" << endl;
+    
+    if (WorkerControl.getCount() == 0) {
+        cout << "No workers to edit." << endl;
+        return;
+    }
+    
+    try {
+        WorkerControl.displayAll();
+        
+        cout << "\nEnter worker number to edit (1-" << WorkerControl.getCount() 
+             << ") or 0 to cancel: ";
+        
+        int index = getInput(0, WorkerControl.getCount());
+        
+        if (index == 0) {
+            cout << "Edit cancelled." << endl;
+            return;
+        }
+        
+        WorkerControl.editWorker(index - 1);
+        cout << "Worker edited successfully." << endl;
+        
+    } catch (const WorkerException& e) {
+        cout << "Cannot edit: " << e.what() << endl;
+    }
 }
 
 void Menu::displayAllWorkers() {
@@ -94,6 +131,20 @@ void Menu::deleteWorker() {
         WorkerControl.deleteWorker(index - 1);
     } catch (const WorkerException& e) {
         cout << "Cannot delete: " << e.what() << endl;
+    }
+}
+
+void Menu::processFile() {
+    cout << "\n=== Process Text File ===" << endl;
+    cout << "This function reads 'text.txt' and displays only sentences without commas." << endl;
+    
+    try {
+        FileProcessor::processFileWithoutCommas();
+    } catch (const WorkerException& e) {
+        cout << "Error: " << e.what() << endl;
+        cout << "Please create a file named 'text.txt' in the program directory." << endl;
+    } catch (const exception& e) {
+        cout << "Unexpected error: " << e.what() << endl;
     }
 }
 

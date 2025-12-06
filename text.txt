@@ -1,0 +1,9 @@
+This is the first sentence without any commas.
+The second sentence, however, contains commas.
+Another simple sentence!
+What about this one? It has a comma too, you see.
+Programming in C++ is fun; especially when it works.
+Here is a sentence: without commas of course.
+Some abbreviations e.g. and i.e. should be handled properly.
+Quoted text like "Hello, world" should ignore commas inside quotes.
+The last sentence ends here.

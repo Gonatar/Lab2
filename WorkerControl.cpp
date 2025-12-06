@@ -37,16 +37,38 @@ void WorkerControl::addWorker() {
         domExpansion();
     }
     
+    workers[count] = nullptr;
     try {
         workers[count] = new Worker();
         cin >> *workers[count];
         count++;
         cout << "Worker added. Total: " << count << endl;
-    } catch (const WorkerException& e) {
-        delete workers[count]; // Удаляем частично созданный объект
+    } catch (...) {
+        delete workers[count];
         workers[count] = nullptr;
-        throw; // Пробрасываем исключение дальше
+        throw;
     }
+}
+
+void WorkerControl::editWorker(int index) {
+    if (index < 0 || index >= count) {
+        throw WorkerException("Invalid index for editing");
+    }
+    
+    cout << "\n=== Editing Worker #" << (index + 1) << " ===" << endl;
+    cout << "Current data: " << *workers[index] << endl;
+    
+    cout << "\nEnter new data:" << endl;
+    
+    try {
+        cin >> *workers[index];
+        cout << "Worker updated successfully." << endl;
+    } catch (const WorkerException& e) {
+        cout << "Error: " << e.what() << ". Changes not saved." << endl;
+        throw;
+    }
+    
+    sortByFIO();
 }
 
 void WorkerControl::displayAll() {
@@ -90,7 +112,8 @@ void WorkerControl::findExperienced(int minYears) {
     for (int i = 0; i < count; i++) {
         int experience = currentYear - workers[i]->getYear();
         if (experience > minYears) {
-            cout << *workers[i] << " (Experience: " << experience << " years)" << endl;
+            cout << "- " << workers[i]->getSurname() 
+                 << " (Experience: " << experience << " years)" << endl;
             found = true;
         }
     }
@@ -110,7 +133,7 @@ void WorkerControl::deleteWorker(int index) {
         workers[i] = workers[i + 1];
     }
     count--;
-    workers[count] = nullptr; // Важное исправление!
+    workers[count] = nullptr;
     cout << "Worker deleted" << endl;
 }
 

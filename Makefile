@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++11 -Wall
 TARGET = program
-SOURCES = main.cpp Worker.cpp WorkerControl.cpp Menu.cpp
+SOURCES = main.cpp Worker.cpp WorkerControl.cpp Menu.cpp FileProcessor.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 
 $(TARGET): $(OBJECTS)

@@ -2,6 +2,7 @@
 #define MENU_H
 
 #include "WorkerControl.h"
+#include "FileProcessor.h"
 
 class Menu {
 private:
@@ -9,10 +10,11 @@ private:
     
     void displayMainMenu();
     void addWorker();
+    void editWorker();
     void displayAllWorkers();
-    void sortWorkers();
     void findExperiencedWorkers();
     void deleteWorker();
+    void processFile();
     void enter();
     int getInput(int min, int max);
 

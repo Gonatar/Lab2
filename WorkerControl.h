@@ -17,6 +17,7 @@ public:
     ~WorkerControl();
     
     void addWorker();
+    void editWorker(int index);
     void displayAll();
     void sortByFIO();
     void findExperienced(int minYears);

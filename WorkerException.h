@@ -4,6 +4,7 @@
 #include <exception>
 #include <cstring>
 
+
 class WorkerException : public std::exception {
 private:
     char* message;
