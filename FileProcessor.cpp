@@ -31,30 +31,30 @@ bool isSentenceEnd(char ch, const char* content, size_t pos, size_t length) {
 char* trim(const char* str) {
     if (!str) return nullptr;
     
-    while (*str && isspace(*str)) {
-        str++;
+    const char* start = str;
+    while (*start && isspace(*start)) {
+        start++;
     }
     
-    if (*str == '\0') {
+    if (*start == '\0') {
         char* result = new char[1];
         result[0] = '\0';
         return result;
     }
     
-    const char* end = str;
-    while (*end) {
-        end++;
+    const char* end = start;
+    const char* temp = start;
+    while (*temp) {
+        if (!isspace(*temp)) {
+            end = temp;
+        }
+        temp++;
     }
-    end--;
     
-    while (end > str && isspace(*end)) {
-        end--;
-    }
-    
-    size_t len = end - str + 1;
+    size_t len = end - start + 1;
     char* result = new char[len + 1];
     
-    strncpy(result, str, len);
+    strncpy(result, start, len);
     result[len] = '\0';
     
     return result;
@@ -71,7 +71,7 @@ void freeStringArray(char** array, int count) {
 
 void FileProcessor::processFileWithoutCommas() {
     const char* filename = "text.txt";
-    ifstream file(filename);
+    ifstream file(filename, ios::binary);
     
     if (!file.is_open()) {
         throw WorkerException("Cannot open file text.txt for reading. Make sure the file exists.");
@@ -96,6 +96,17 @@ void FileProcessor::processFileWithoutCommas() {
     file.read(content, fileSize);
     content[fileSize] = '\0';
     file.close();
+    
+    // Проверка и удаление BOM (UTF-8 маркера)
+    if (fileSize >= 3 && 
+        static_cast<unsigned char>(content[0]) == 0xEF &&
+        static_cast<unsigned char>(content[1]) == 0xBB &&
+        static_cast<unsigned char>(content[2]) == 0xBF) {
+        
+        memmove(content, content + 3, fileSize - 2);
+        fileSize -= 3;
+        content[fileSize] = '\0';
+    }
     
     cout << "\n=== Processing file: " << filename << " ===" << endl;
     cout << "Displaying sentences without commas:" << endl;
@@ -134,6 +145,8 @@ void FileProcessor::processFileWithoutCommas() {
         throw WorkerException("Memory allocation failed for sentence buffer");
     }
     
+    currentSentence[0] = '\0';
+    
     for (long i = 0; i < fileSize; i++) {
         char ch = content[i];
         
@@ -161,31 +174,30 @@ void FileProcessor::processFileWithoutCommas() {
                     throw WorkerException("Memory expansion failed for sentences");
                 }
                 
-                for (int j = 0; j < count; j++) {
-                    newSentences[j] = sentences[j];
-                }
-                delete[] sentences;
-                sentences = newSentences;
-                
                 bool* newHasComma = new bool[capacity];
                 if (!newHasComma) {
                     delete[] content;
                     freeStringArray(sentences, count);
                     delete[] hasComma;
                     delete[] currentSentence;
+                    delete[] newSentences;
                     throw WorkerException("Memory expansion failed for hasComma");
                 }
                 
                 for (int j = 0; j < count; j++) {
+                    newSentences[j] = sentences[j];
                     newHasComma[j] = hasComma[j];
                 }
-                delete[] hasComma;
-                hasComma = newHasComma;
                 
                 for (int j = count; j < capacity; j++) {
-                    sentences[j] = nullptr;
-                    hasComma[j] = false;
+                    newSentences[j] = nullptr;
+                    newHasComma[j] = false;
                 }
+                
+                delete[] sentences;
+                delete[] hasComma;
+                sentences = newSentences;
+                hasComma = newHasComma;
             }
             
             sentences[count] = new char[sentencePos + 1];
@@ -213,21 +225,40 @@ void FileProcessor::processFileWithoutCommas() {
             char** newSentences = new char*[capacity];
             bool* newHasComma = new bool[capacity];
             
+            if (!newSentences || !newHasComma) {
+                delete[] content;
+                freeStringArray(sentences, count);
+                delete[] hasComma;
+                delete[] currentSentence;
+                if (newSentences) delete[] newSentences;
+                if (newHasComma) delete[] newHasComma;
+                throw WorkerException("Memory expansion failed for last sentence");
+            }
+            
             for (int j = 0; j < count; j++) {
                 newSentences[j] = sentences[j];
                 newHasComma[j] = hasComma[j];
+            }
+            
+            for (int j = count; j < capacity; j++) {
+                newSentences[j] = nullptr;
+                newHasComma[j] = false;
             }
             
             delete[] sentences;
             delete[] hasComma;
             sentences = newSentences;
             hasComma = newHasComma;
-            
-            sentences[count] = nullptr;
-            hasComma[count] = false;
         }
         
         sentences[count] = new char[sentencePos + 1];
+        if (!sentences[count]) {
+            delete[] content;
+            freeStringArray(sentences, count);
+            delete[] hasComma;
+            delete[] currentSentence;
+            throw WorkerException("Memory allocation failed for last sentence");
+        }
         strcpy(sentences[count], currentSentence);
         hasComma[count] = currentHasComma;
         count++;
@@ -260,8 +291,5 @@ void FileProcessor::processFileWithoutCommas() {
     delete[] currentSentence;
     delete[] hasComma;
     
-    for (int i = 0; i < count; i++) {
-        delete[] sentences[i];
-    }
-    delete[] sentences;
+    freeStringArray(sentences, count);
 }
